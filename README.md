@@ -1,5 +1,5 @@
 🎓 Automated-Faculty-Evaluation-System:
-A lightweight, database-driven web application built using PHP and MySQL to automate faculty evaluation workflows.
+A lightweight, database-driven web application built using PHP and MySQL to automate faculty evaluation workflows. 
 Designed to replace manual feedback collection with a structured, secure, and scalable system.
 
 ⚡ Tech Stack:
