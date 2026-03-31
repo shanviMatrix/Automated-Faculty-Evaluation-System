@@ -1,0 +1,100 @@
+<?php
+include("../config/db.php");
+
+if (isset($_POST['register'])) {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $check = "SELECT * FROM students WHERE email='$email'";
+    $result = mysqli_query($conn, $check);
+    if (mysqli_num_rows($result) > 0) {
+        $error = "This email is already registered. Please login instead.";
+    } else {
+        $query = "INSERT INTO students (name, email, password) VALUES ('$name', '$email', '$password')";
+        mysqli_query($conn, $query);
+        $success = true;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Register — Faculty Evaluation System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-split">
+
+    <div class="login-panel-left">
+      <div class="logo-mark">FE</div>
+      <h2>Create Account</h2>
+      <p>Register once and start giving feedback to your faculty members instantly.</p>
+      <ul class="features">
+        <li>Quick one-time registration</li>
+        <li>Secure & private</li>
+        <li>Access your dashboard</li>
+        <li>Track all submissions</li>
+      </ul>
+    </div>
+
+    <div class="login-panel-right">
+      <h1>Student Registration</h1>
+      <p class="subtitle">Create your student account</p>
+
+      <?php if (isset($success) && $success): ?>
+        <div class="alert alert-success">&#10003; Registration successful! You can now login.</div>
+        <a href="login.php" class="btn btn-secondary btn-block">Go to Login &rarr;</a>
+        <p class="text-center mt-2" style="font-size:13px; color:var(--text-hint);">
+          <a href="login.php" style="color:var(--text-secondary); text-decoration:none;">&#8592; Back to Login</a>
+        </p>
+      <?php else: ?>
+
+        <?php if (isset($error)): ?>
+          <div class="alert alert-danger">&#9888; <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form method="POST" action="">
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control"
+              placeholder="Enter your full name"
+              value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : '' ?>"
+              required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control"
+              placeholder="Enter your college email"
+              value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>"
+              required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control"
+              placeholder="Create a password" required>
+          </div>
+          <button type="submit" name="register" class="btn btn-secondary btn-block">Create Account</button>
+        </form>
+
+        <hr class="divider">
+        <p class="text-center" style="font-size:13px; color:var(--text-hint);">
+          Already have an account?
+          <a href="login.php" style="color:var(--secondary); font-weight:600; text-decoration:none;">Login here &rarr;</a>
+        </p>
+        <p class="text-center mt-1" style="font-size:13px;">
+          <a href="login.php" class="back-link">&#8592; Back to Login</a>
+        </p>
+
+      <?php endif; ?>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
