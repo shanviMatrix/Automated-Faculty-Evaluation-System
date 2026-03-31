@@ -3,8 +3,8 @@ session_start();
 include("config/db.php");
 
 if (isset($_POST['login'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
     $query = "SELECT * FROM admin WHERE username='$username' AND password='$password'";
     $result = mysqli_query($conn, $query);
     if (mysqli_num_rows($result) == 1) {
@@ -24,7 +24,7 @@ if (isset($_POST['login'])) {
   <title>Admin Login — Faculty Evaluation System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -44,11 +44,11 @@ if (isset($_POST['login'])) {
     </div>
 
     <div class="login-panel-right">
-      <h1>Welcome back</h1>
+      <h1>Welcome back 👋</h1>
       <p class="subtitle">Sign in to your Admin account</p>
 
       <?php if (isset($error)): ?>
-        <div class="alert alert-danger">&#9888; <?= htmlspecialchars($error) ?></div>
+        <div class="alert alert-danger">⚠️ <?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
       <form method="POST" action="">
@@ -70,7 +70,7 @@ if (isset($_POST['login'])) {
       <hr class="divider">
       <p class="text-center" style="font-size:13px; color:var(--text-hint);">
         Are you a student?
-        <a href="student/login.php" style="color:var(--secondary); font-weight:600; text-decoration:none;">Student login &rarr;</a>
+        <a href="student/login.php" style="color:var(--pink); font-weight:700; text-decoration:none;">Student login →</a>
       </p>
     </div>
 

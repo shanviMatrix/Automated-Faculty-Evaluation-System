@@ -2,10 +2,10 @@
 include("../config/db.php");
 
 if (isset($_POST['register'])) {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $check = "SELECT * FROM students WHERE email='$email'";
+    $name     = mysqli_real_escape_string($conn, $_POST['name']);
+    $email    = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $check  = "SELECT * FROM students WHERE email='$email'";
     $result = mysqli_query($conn, $check);
     if (mysqli_num_rows($result) > 0) {
         $error = "This email is already registered. Please login instead.";
@@ -24,7 +24,7 @@ if (isset($_POST['register'])) {
   <title>Student Register — Faculty Evaluation System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -44,19 +44,19 @@ if (isset($_POST['register'])) {
     </div>
 
     <div class="login-panel-right">
-      <h1>Student Registration</h1>
+      <h1>Student Registration ✨</h1>
       <p class="subtitle">Create your student account</p>
 
       <?php if (isset($success) && $success): ?>
-        <div class="alert alert-success">&#10003; Registration successful! You can now login.</div>
-        <a href="login.php" class="btn btn-secondary btn-block">Go to Login &rarr;</a>
-        <p class="text-center mt-2" style="font-size:13px; color:var(--text-hint);">
-          <a href="login.php" style="color:var(--text-secondary); text-decoration:none;">&#8592; Back to Login</a>
+        <div class="alert alert-success">✓ Registration successful! You can now login.</div>
+        <a href="login.php" class="btn btn-secondary btn-block">Go to Login →</a>
+        <p class="text-center mt-2" style="font-size:13px;">
+          <a href="login.php" style="color:var(--text-secondary); text-decoration:none;">← Back to Login</a>
         </p>
       <?php else: ?>
 
         <?php if (isset($error)): ?>
-          <div class="alert alert-danger">&#9888; <?= htmlspecialchars($error) ?></div>
+          <div class="alert alert-danger">⚠️ <?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
         <form method="POST" action="">
@@ -77,7 +77,7 @@ if (isset($_POST['register'])) {
           <div class="form-group">
             <label class="form-label" for="password">Password</label>
             <input type="password" id="password" name="password" class="form-control"
-              placeholder="Create a password" required>
+              placeholder="Create a strong password" required>
           </div>
           <button type="submit" name="register" class="btn btn-secondary btn-block">Create Account</button>
         </form>
@@ -85,12 +85,8 @@ if (isset($_POST['register'])) {
         <hr class="divider">
         <p class="text-center" style="font-size:13px; color:var(--text-hint);">
           Already have an account?
-          <a href="login.php" style="color:var(--secondary); font-weight:600; text-decoration:none;">Login here &rarr;</a>
+          <a href="login.php" style="color:var(--green-deep); font-weight:700; text-decoration:none;">Login here →</a>
         </p>
-        <p class="text-center mt-1" style="font-size:13px;">
-          <a href="login.php" class="back-link">&#8592; Back to Login</a>
-        </p>
-
       <?php endif; ?>
     </div>
 

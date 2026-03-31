@@ -3,29 +3,28 @@ session_start();
 include("../config/db.php");
 if (!isset($_SESSION['student_id'])) { header("Location: login.php"); exit(); }
 $student_id = $_SESSION['student_id'];
-$message = "";
+$message    = "";
 $student_query = mysqli_query($conn, "SELECT * FROM students WHERE id='$student_id'");
-$student = mysqli_fetch_assoc($student_query);
+$student       = mysqli_fetch_assoc($student_query);
 $_SESSION['name'] = $student['name'];
 $role = 'student';
 $preselected_faculty = isset($_GET['faculty_id']) ? (int)$_GET['faculty_id'] : 0;
 
 if (isset($_POST['submit'])) {
-    $faculty_id = $_POST['faculty_id'];
-    $rating     = $_POST['rating'];
-    $comments   = $_POST['comments'];
+    $faculty_id = mysqli_real_escape_string($conn, $_POST['faculty_id']);
+    $rating     = (int)$_POST['rating'];
+    $comments   = mysqli_real_escape_string($conn, $_POST['comments']);
     if (empty($rating) || $rating < 1 || $rating > 5) {
         $message = "Please select a valid rating between 1 and 5.";
     } else {
-        $check = "SELECT * FROM feedback WHERE student_id='$student_id' AND faculty_id='$faculty_id'";
+        $check  = "SELECT * FROM feedback WHERE student_id='$student_id' AND faculty_id='$faculty_id'";
         $result = mysqli_query($conn, $check);
         if (mysqli_num_rows($result) > 0) {
             $message = "You have already submitted feedback for this faculty!";
         } else {
             $query = "INSERT INTO feedback (student_id, faculty_id, rating, comments) VALUES ('$student_id', '$faculty_id', '$rating', '$comments')";
             mysqli_query($conn, $query);
-            header("Location: dashboard.php");
-            exit();
+            header("Location: dashboard.php"); exit();
         }
     }
 }
@@ -37,77 +36,80 @@ if (isset($_POST['submit'])) {
   <title>Give Feedback — Faculty Evaluation System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
+  <div class="main-content">
 
-  <!-- Back navigation -->
-  <div class="back-bar">
-    <a href="dashboard.php" class="back-link">&#8592; Back to Dashboard</a>
-    <span class="breadcrumb">
-      <span class="sep">/</span>
-      <span class="current">Give Feedback</span>
-    </span>
-  </div>
-
-  <div class="page-header">
-    <div>
-      <h1>Give Feedback</h1>
-      <p>Your feedback is anonymous and helps improve teaching quality</p>
+    <div class="back-bar">
+      <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
+      <span class="breadcrumb">
+        <span class="sep">/</span>
+        <span class="current">Give Feedback</span>
+      </span>
     </div>
-  </div>
 
-  <div style="max-width:620px;">
-    <?php if ($message != ""): ?>
-      <div class="alert alert-danger">&#9888; <?= htmlspecialchars($message) ?></div>
-    <?php endif; ?>
+    <div class="page-header">
+      <div>
+        <h1>Give Feedback ✍️</h1>
+        <p>Your feedback is anonymous and helps improve teaching quality</p>
+      </div>
+    </div>
 
-    <div class="card">
-      <div class="card-title">&#9997; Feedback Form</div>
-      <form method="POST" action="">
-        <div class="form-group">
-          <label class="form-label" for="faculty_id">Select Faculty</label>
-          <select name="faculty_id" id="faculty_id" class="form-control" required>
-            <option value="">— Choose a faculty member —</option>
-            <?php
-            $result = mysqli_query($conn, "SELECT * FROM faculty");
-            while ($row = mysqli_fetch_assoc($result)) {
-                $sel = ($preselected_faculty == $row['id'] || (isset($_POST['faculty_id']) && $_POST['faculty_id'] == $row['id'])) ? 'selected' : '';
-                echo "<option value='".$row['id']."' $sel>".htmlspecialchars($row['name'])." — ".htmlspecialchars($row['subject'])."</option>";
-            }
-            ?>
-          </select>
-        </div>
+    <div style="max-width:640px;">
+      <?php if ($message != ""): ?>
+        <div class="alert alert-danger">⚠️ <?= htmlspecialchars($message) ?></div>
+      <?php endif; ?>
 
-        <div class="form-group">
-          <label class="form-label">Rating</label>
-          <div class="stars">
-            <?php $cr = isset($_POST['rating']) ? (int)$_POST['rating'] : 0; for ($i=5; $i>=1; $i--): ?>
-            <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" <?= $cr==$i?'checked':'' ?>>
-            <label for="star<?= $i ?>">&#9733;</label>
-            <?php endfor; ?>
+      <div class="card">
+        <div class="card-title">📝 Feedback Form</div>
+        <form method="POST" action="">
+          <div class="form-group">
+            <label class="form-label" for="faculty_id">Select Faculty</label>
+            <select name="faculty_id" id="faculty_id" class="form-control" required>
+              <option value="">— Choose a faculty member —</option>
+              <?php
+              $result = mysqli_query($conn, "SELECT * FROM faculty");
+              while ($row = mysqli_fetch_assoc($result)) {
+                  $sel = ($preselected_faculty == $row['id'] || (isset($_POST['faculty_id']) && $_POST['faculty_id'] == $row['id'])) ? 'selected' : '';
+                  echo "<option value='".$row['id']."' $sel>".htmlspecialchars($row['name'])." — ".htmlspecialchars($row['subject'])."</option>";
+              }
+              ?>
+            </select>
           </div>
-          <p style="font-size:12px; color:var(--text-hint); margin-top:6px;">1 = Poor &nbsp;&nbsp; 5 = Excellent</p>
-        </div>
 
-        <div class="form-group">
-          <label class="form-label" for="comments">Comments <span style="color:var(--text-hint); font-weight:400">(optional)</span></label>
-          <textarea name="comments" id="comments" class="form-control"
-            placeholder="Share your thoughts about this faculty member..."
-            rows="4"><?= isset($_POST['comments']) ? htmlspecialchars($_POST['comments']) : '' ?></textarea>
-        </div>
+          <div class="form-group">
+            <label class="form-label">Rating</label>
+            <div class="stars">
+              <?php $cr = isset($_POST['rating']) ? (int)$_POST['rating'] : 0; for ($i=5; $i>=1; $i--): ?>
+              <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" <?= $cr==$i?'checked':'' ?>>
+              <label for="star<?= $i ?>">★</label>
+              <?php endfor; ?>
+            </div>
+            <p style="font-size:12px; color:var(--text-hint); margin-top:8px;">1 = Poor &nbsp;&nbsp; 5 = Excellent</p>
+          </div>
 
-        <div class="d-flex gap-3">
-          <button type="submit" name="submit" class="btn btn-secondary">&#10003; Submit Feedback</button>
-          <a href="dashboard.php" class="btn btn-outline-gray">Cancel</a>
-        </div>
-      </form>
+          <div class="form-group">
+            <label class="form-label" for="comments">
+              Comments <span style="color:var(--text-hint); font-weight:400">(optional)</span>
+            </label>
+            <textarea name="comments" id="comments" class="form-control"
+              placeholder="Share your thoughts about this faculty member..."
+              rows="4"><?= isset($_POST['comments']) ? htmlspecialchars($_POST['comments']) : '' ?></textarea>
+          </div>
+
+          <div class="d-flex gap-3">
+            <button type="submit" name="submit" class="btn btn-secondary">✓ Submit Feedback</button>
+            <a href="dashboard.php" class="btn btn-outline-gray">Cancel</a>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
+  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>
