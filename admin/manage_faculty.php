@@ -1,14 +1,16 @@
 <?php
-session_start();
+require_once("../includes/auth.php");
+require_role('admin');
+
 include("../config/db.php");
-if (!isset($_SESSION['admin'])) { header("Location: ../login.php"); exit(); }
-$_SESSION['name'] = $_SESSION['admin'];
-$role = 'admin';
+
 if (isset($_GET['delete'])) {
-    $id = mysqli_real_escape_string($conn, $_GET['delete']);
-    mysqli_query($conn, "DELETE FROM faculty WHERE id='$id'");
-    header("Location: manage_faculty.php"); exit();
+    $id = (int)$_GET['delete']; // FIXED: cast to int — safest escaping for IDs
+    mysqli_query($conn, "DELETE FROM faculty WHERE id=$id");
+    header("Location: manage_faculty.php");
+    exit();
 }
+
 $result = mysqli_query($conn, "SELECT * FROM faculty");
 $total  = mysqli_num_rows($result);
 ?>
@@ -25,7 +27,6 @@ $total  = mysqli_num_rows($result);
 <body>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
-  <div class="main-content">
 
     <div class="back-bar">
       <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
@@ -39,7 +40,7 @@ $total  = mysqli_num_rows($result);
     <div class="page-header">
       <div>
         <h1>Manage Faculty 👥</h1>
-        <p><?= $total ?> faculty member<?= $total!=1?'s':'' ?> in the system</p>
+        <p><?= $total ?> faculty member<?= $total != 1 ? 's' : '' ?> in the system</p>
       </div>
       <a href="add_faculty.php" class="btn btn-primary">+ Add New Faculty</a>
     </div>
@@ -49,18 +50,19 @@ $total  = mysqli_num_rows($result);
       <?php if ($total > 0): ?>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Name</th><th>Subject</th><th>Actions</th></tr></thead>
+          <thead><tr><th>#</th><th>Name</th><th>Subject</th><th>Email</th><th>Actions</th></tr></thead>
           <tbody>
-            <?php $i=1; while ($row = mysqli_fetch_assoc($result)): ?>
+            <?php $i = 1; while ($row = mysqli_fetch_assoc($result)): ?>
             <tr>
               <td style="color:var(--text-hint); font-size:13px"><?= $i++ ?></td>
               <td class="font-bold"><?= htmlspecialchars($row['name']) ?></td>
               <td><span class="badge badge-green"><?= htmlspecialchars($row['subject']) ?></span></td>
+              <td style="font-size:13px; color:var(--text-hint)"><?= htmlspecialchars($row['email'] ?? '—') ?></td>
               <td>
                 <div class="d-flex gap-2">
-                  <a href="edit_faculty.php?id=<?= $row['id'] ?>" class="btn btn-outline btn-sm">✏️ Edit</a>
-                  <a href="?delete=<?= $row['id'] ?>" class="btn btn-danger btn-sm"
-                     onclick="return confirm('Delete <?= htmlspecialchars($row['name']) ?>? This cannot be undone.')">
+                  <a href="edit_faculty.php?id=<?= (int)$row['id'] ?>" class="btn btn-outline btn-sm">✏️ Edit</a>
+                  <a href="?delete=<?= (int)$row['id'] ?>" class="btn btn-danger btn-sm"
+                     onclick="return confirm('Delete <?= htmlspecialchars($row['name'], ENT_QUOTES) ?>? This cannot be undone.')">
                     ✕ Delete
                   </a>
                 </div>
@@ -75,7 +77,6 @@ $total  = mysqli_num_rows($result);
       <?php endif; ?>
     </div>
 
-  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>

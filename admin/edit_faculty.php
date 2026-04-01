@@ -1,17 +1,25 @@
 <?php
-session_start();
+require_once("../includes/auth.php");
+require_role('admin');
+
 include("../config/db.php");
-if (!isset($_SESSION['admin'])) { header("Location: ../login.php"); exit(); }
-$_SESSION['name'] = $_SESSION['admin'];
-$role = 'admin';
-$id     = mysqli_real_escape_string($conn, $_GET['id']);
-$result = mysqli_query($conn, "SELECT * FROM faculty WHERE id='$id'");
+
+$id     = (int)$_GET['id']; // FIXED: int cast, not string escape
+$result = mysqli_query($conn, "SELECT * FROM faculty WHERE id=$id");
 $row    = mysqli_fetch_assoc($result);
+
+if (!$row) {
+    header("Location: manage_faculty.php");
+    exit();
+}
+
 if (isset($_POST['update'])) {
-    $name    = mysqli_real_escape_string($conn, $_POST['name']);
-    $subject = mysqli_real_escape_string($conn, $_POST['subject']);
-    mysqli_query($conn, "UPDATE faculty SET name='$name', subject='$subject' WHERE id='$id'");
-    header("Location: manage_faculty.php"); exit();
+    $name    = mysqli_real_escape_string($conn, trim($_POST['name']));
+    $subject = mysqli_real_escape_string($conn, trim($_POST['subject']));
+    $email   = mysqli_real_escape_string($conn, trim($_POST['email']));
+    mysqli_query($conn, "UPDATE faculty SET name='$name', subject='$subject', email='$email' WHERE id=$id");
+    header("Location: manage_faculty.php");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -27,7 +35,7 @@ if (isset($_POST['update'])) {
 <body>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
-  <div class="main-content">
+  <!-- FIXED: Removed the duplicate <div class="main-content"> that was here — header.php already opens it -->
 
     <div class="back-bar">
       <a href="manage_faculty.php" class="back-link">← Back to Faculty List</a>
@@ -61,6 +69,11 @@ if (isset($_POST['update'])) {
             <input type="text" id="subject" name="subject" class="form-control"
               value="<?= htmlspecialchars($row['subject']) ?>" required>
           </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control"
+              value="<?= htmlspecialchars($row['email'] ?? '') ?>">
+          </div>
           <div class="d-flex gap-3">
             <button type="submit" name="update" class="btn btn-primary">✓ Save Changes</button>
             <a href="manage_faculty.php" class="btn btn-outline-gray">Cancel</a>
@@ -69,7 +82,6 @@ if (isset($_POST['update'])) {
       </div>
     </div>
 
-  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>

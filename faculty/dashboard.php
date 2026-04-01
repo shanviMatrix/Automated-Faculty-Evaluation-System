@@ -1,15 +1,17 @@
 <?php
-session_start();
+require_once("../includes/auth.php");
+require_role('faculty');
+
 include("../config/db.php");
-if(!isset($_SESSION['faculty_id'])){ header("Location: login.php"); exit(); }
-$faculty_id = $_SESSION['faculty_id'];
-$query  = "SELECT * FROM feedback WHERE faculty_id='$faculty_id'";
-$result = mysqli_query($conn, $query);
+
+$faculty_id = current_user_id();
+
+$result = mysqli_query($conn, "SELECT * FROM feedback WHERE faculty_id=" . (int)$faculty_id);
 $total  = mysqli_num_rows($result);
-$avg_q  = mysqli_fetch_row(mysqli_query($conn, "SELECT ROUND(AVG(rating),1) FROM feedback WHERE faculty_id='$faculty_id'"));
-$avg    = $avg_q[0] ?: 'N/A';
-$_SESSION['name'] = $_SESSION['faculty_name'];
-$role = 'faculty';
+
+$avg_q = mysqli_fetch_row(mysqli_query($conn,
+    "SELECT ROUND(AVG(rating), 1) FROM feedback WHERE faculty_id=" . (int)$faculty_id));
+$avg   = $avg_q[0] ?: 'N/A';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,11 +28,9 @@ $role = 'faculty';
 <div class="page-blob blob-2"></div>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
-  <div class="main-content">
 
-    <!-- Hero Banner -->
     <div class="hero-banner">
-      <h1>Welcome, <?= htmlspecialchars($_SESSION['faculty_name']) ?> 🌟</h1>
+      <h1>Welcome, <?= htmlspecialchars(current_user_name()) ?> 🌟</h1>
       <p>Here's what students are saying about your teaching.</p>
       <div class="hero-meta">
         <span class="hero-chip">📝 <?= $total ?> Total Reviews</span>
@@ -38,7 +38,6 @@ $role = 'faculty';
       </div>
     </div>
 
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card green">
         <div class="stat-icon green">📝</div>
@@ -50,7 +49,6 @@ $role = 'faculty';
       </div>
     </div>
 
-    <!-- Feedback Table -->
     <div class="card">
       <div class="card-title">💬 Student Feedback</div>
       <?php if ($total > 0):
@@ -59,15 +57,15 @@ $role = 'faculty';
         <table>
           <thead><tr><th>#</th><th>Rating</th><th>Comments</th><th>Date</th></tr></thead>
           <tbody>
-            <?php $i=1; while($row = mysqli_fetch_assoc($result)):
+            <?php $i = 1; while ($row = mysqli_fetch_assoc($result)):
               $badge = $row['rating'] >= 4 ? 'badge-green' : ($row['rating'] < 3 ? 'badge-red' : 'badge-amber'); ?>
             <tr>
               <td style="color:var(--text-hint)"><?= $i++ ?></td>
-              <td><span class="badge <?= $badge ?>"><?= str_repeat('★',$row['rating']) ?> <?= $row['rating'] ?>/5</span></td>
+              <td><span class="badge <?= $badge ?>"><?= str_repeat('★', $row['rating']) ?> <?= $row['rating'] ?>/5</span></td>
               <td style="font-size:13px; color:var(--text-secondary)">
                 <?= $row['comments'] ? htmlspecialchars($row['comments']) : '<span style="color:var(--text-hint)">No comment</span>' ?>
               </td>
-              <td style="font-size:12px; color:var(--text-hint)"><?= $row['created_at'] ?></td>
+              <td style="font-size:12px; color:var(--text-hint)"><?= htmlspecialchars($row['created_at'] ?? '—') ?></td>
             </tr>
             <?php endwhile; ?>
           </tbody>
@@ -79,10 +77,9 @@ $role = 'faculty';
     </div>
 
     <div class="mt-2">
-      <a href="logout.php" class="btn btn-danger">🚪 Logout</a>
+      <a href="../logout.php" class="btn btn-danger">🚪 Logout</a>
     </div>
 
-  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>

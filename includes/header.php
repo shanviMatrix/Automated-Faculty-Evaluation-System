@@ -1,42 +1,52 @@
 <?php
+/**
+ * includes/header.php
+ * Works with the unified session: $_SESSION['user_role'] and $_SESSION['user_name']
+ */
 $current_page = basename($_SERVER['PHP_SELF']);
-$role      = isset($role) ? $role : (isset($_SESSION['admin']) ? 'admin' : (isset($_SESSION['faculty_id']) ? 'faculty' : (isset($_SESSION['student_id']) ? 'student' : '')));
-$user_name = isset($_SESSION['name']) ? $_SESSION['name'] : '';
-$initials  = '';
+$role         = $_SESSION['user_role'] ?? '';
+$user_name    = $_SESSION['user_name'] ?? '';
+
+$initials = '';
 if ($user_name) {
     $parts    = explode(' ', trim($user_name));
     $initials = strtoupper(substr($parts[0], 0, 1));
     if (isset($parts[1])) $initials .= strtoupper(substr($parts[1], 0, 1));
 }
-$depth = substr_count($_SERVER['PHP_SELF'], '/') - 1;
+
+// Calculate base path depth so links always resolve correctly
+$depth = substr_count(str_replace('\\', '/', $_SERVER['PHP_SELF']), '/') - 1;
 $base  = str_repeat('../', $depth);
 ?>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="<?= $base ?>index.php" class="navbar-brand">
+    <a href="<?= $base ?>login.php" class="navbar-brand">
       <div class="navbar-logo">FE</div>
       <span class="navbar-title">Faculty <span>Eval</span></span>
     </a>
 
     <?php if ($role === 'admin'): ?>
     <ul class="navbar-nav">
-      <li><a href="<?= $base ?>admin/dashboard.php" class="<?= $current_page==='dashboard.php'?'active':'' ?>">Dashboard</a></li>
-      <li><a href="<?= $base ?>admin/add_faculty.php" class="<?= $current_page==='add_faculty.php'?'active':'' ?>">+ Add Faculty</a></li>
+      <li><a href="<?= $base ?>admin/dashboard.php"      class="<?= $current_page==='dashboard.php'     ?'active':'' ?>">Dashboard</a></li>
+      <li><a href="<?= $base ?>admin/add_faculty.php"    class="<?= $current_page==='add_faculty.php'   ?'active':'' ?>">+ Add Faculty</a></li>
       <li><a href="<?= $base ?>admin/manage_faculty.php" class="<?= $current_page==='manage_faculty.php'?'active':'' ?>">Manage Faculty</a></li>
-      <li><a href="<?= $base ?>admin/view_feedback.php" class="<?= $current_page==='view_feedback.php'?'active':'' ?>">View Feedback</a></li>
+      <li><a href="<?= $base ?>admin/view_feedback.php"  class="<?= $current_page==='view_feedback.php' ?'active':'' ?>">View Feedback</a></li>
       <li class="nav-logout"><a href="<?= $base ?>logout.php">Logout</a></li>
     </ul>
+
     <?php elseif ($role === 'student'): ?>
     <ul class="navbar-nav">
       <li><a href="<?= $base ?>student/dashboard.php" class="<?= $current_page==='dashboard.php'?'active':'' ?>">Dashboard</a></li>
-      <li><a href="<?= $base ?>student/feedback.php" class="<?= $current_page==='feedback.php'?'active':'' ?>">Give Feedback</a></li>
+      <li><a href="<?= $base ?>student/feedback.php"  class="<?= $current_page==='feedback.php' ?'active':'' ?>">Give Feedback</a></li>
       <li class="nav-logout"><a href="<?= $base ?>logout.php">Logout</a></li>
     </ul>
+
     <?php elseif ($role === 'faculty'): ?>
     <ul class="navbar-nav">
       <li><a href="<?= $base ?>faculty/dashboard.php" class="<?= $current_page==='dashboard.php'?'active':'' ?>">My Feedback</a></li>
-      <li class="nav-logout"><a href="<?= $base ?>faculty/logout.php">Logout</a></li>
+      <li class="nav-logout"><a href="<?= $base ?>logout.php">Logout</a></li>
     </ul>
+
     <?php else: ?>
     <ul class="navbar-nav"></ul>
     <?php endif; ?>

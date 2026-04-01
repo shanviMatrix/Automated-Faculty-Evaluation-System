@@ -1,16 +1,22 @@
 <?php
-session_start();
+require_once("../includes/auth.php");
+require_role('student');
+
 include("../config/db.php");
-if (!isset($_SESSION['student_id'])) { header("Location: login.php"); exit(); }
-$student_id    = $_SESSION['student_id'];
-$student_query = mysqli_query($conn, "SELECT * FROM students WHERE id='$student_id'");
-$student       = mysqli_fetch_assoc($student_query);
-$_SESSION['name'] = $student['name'];
-$role = 'student';
-$faculty_query   = mysqli_query($conn, "SELECT * FROM faculty");
-$feedback_query  = mysqli_query($conn, "SELECT faculty_id FROM feedback WHERE student_id='$student_id'");
+
+$student_id = current_user_id();
+
+$student_q = mysqli_query($conn, "SELECT * FROM students WHERE id=" . (int)$student_id);
+$student   = mysqli_fetch_assoc($student_q);
+
+$faculty_query  = mysqli_query($conn, "SELECT * FROM faculty");
+$feedback_query = mysqli_query($conn, "SELECT faculty_id FROM feedback WHERE student_id=" . (int)$student_id);
+
 $submitted = [];
-while ($row = mysqli_fetch_assoc($feedback_query)) { $submitted[] = $row['faculty_id']; }
+while ($row = mysqli_fetch_assoc($feedback_query)) {
+    $submitted[] = $row['faculty_id'];
+}
+
 $total_faculty   = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM faculty"));
 $total_submitted = count($submitted);
 $pending         = $total_faculty - $total_submitted;
@@ -30,7 +36,6 @@ $pending         = $total_faculty - $total_submitted;
 <div class="page-blob blob-2"></div>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
-  <div class="main-content">
 
     <div class="back-bar">
       <span class="breadcrumb">
@@ -40,7 +45,6 @@ $pending         = $total_faculty - $total_submitted;
       </span>
     </div>
 
-    <!-- Hero Banner -->
     <div class="hero-banner">
       <h1>Hey, <?= htmlspecialchars($student['name']) ?> 👋</h1>
       <p>Here is your feedback overview for this semester. Keep going!</p>
@@ -50,7 +54,6 @@ $pending         = $total_faculty - $total_submitted;
       </div>
     </div>
 
-    <!-- Stats -->
     <div class="stats-grid">
       <div class="stat-card green">
         <div class="stat-icon green">👤</div>
@@ -66,13 +69,11 @@ $pending         = $total_faculty - $total_submitted;
       </div>
     </div>
 
-    <!-- Faculty Feedback Table -->
     <div class="card">
       <div class="card-title" style="justify-content:space-between;">
         <span>✍️ Faculty Feedback Status</span>
         <a href="feedback.php" class="btn btn-secondary btn-sm">+ Give Feedback</a>
       </div>
-      <?php mysqli_data_seek($faculty_query, 0); ?>
       <?php if (mysqli_num_rows($faculty_query) > 0): ?>
       <div class="table-wrap">
         <table>
@@ -80,7 +81,7 @@ $pending         = $total_faculty - $total_submitted;
             <tr><th>#</th><th>Faculty Name</th><th>Subject</th><th>Status</th><th>Action</th></tr>
           </thead>
           <tbody>
-            <?php $i=1; while ($f = mysqli_fetch_assoc($faculty_query)): $done = in_array($f['id'], $submitted); ?>
+            <?php $i = 1; while ($f = mysqli_fetch_assoc($faculty_query)): $done = in_array($f['id'], $submitted); ?>
             <tr>
               <td><?= $i++ ?></td>
               <td class="font-bold"><?= htmlspecialchars($f['name']) ?></td>
@@ -96,7 +97,7 @@ $pending         = $total_faculty - $total_submitted;
                 <?php if ($done): ?>
                   <span style="font-size:13px; color:var(--text-hint)">Already submitted</span>
                 <?php else: ?>
-                  <a href="feedback.php?faculty_id=<?= $f['id'] ?>" class="btn btn-secondary btn-sm">Give Feedback</a>
+                  <a href="feedback.php?faculty_id=<?= (int)$f['id'] ?>" class="btn btn-secondary btn-sm">Give Feedback</a>
                 <?php endif; ?>
               </td>
             </tr>
@@ -109,7 +110,6 @@ $pending         = $total_faculty - $total_submitted;
       <?php endif; ?>
     </div>
 
-  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>

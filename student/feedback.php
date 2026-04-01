@@ -1,30 +1,31 @@
 <?php
-session_start();
+require_once("../includes/auth.php");
+require_role('student');
+
 include("../config/db.php");
-if (!isset($_SESSION['student_id'])) { header("Location: login.php"); exit(); }
-$student_id = $_SESSION['student_id'];
-$message    = "";
-$student_query = mysqli_query($conn, "SELECT * FROM students WHERE id='$student_id'");
-$student       = mysqli_fetch_assoc($student_query);
-$_SESSION['name'] = $student['name'];
-$role = 'student';
-$preselected_faculty = isset($_GET['faculty_id']) ? (int)$_GET['faculty_id'] : 0;
+
+$student_id  = current_user_id();
+$message     = "";
+$preselected = isset($_GET['faculty_id']) ? (int)$_GET['faculty_id'] : 0;
 
 if (isset($_POST['submit'])) {
-    $faculty_id = mysqli_real_escape_string($conn, $_POST['faculty_id']);
+    $faculty_id = (int)$_POST['faculty_id'];
     $rating     = (int)$_POST['rating'];
-    $comments   = mysqli_real_escape_string($conn, $_POST['comments']);
-    if (empty($rating) || $rating < 1 || $rating > 5) {
+    $comments   = mysqli_real_escape_string($conn, trim($_POST['comments']));
+
+    if ($rating < 1 || $rating > 5) {
         $message = "Please select a valid rating between 1 and 5.";
     } else {
-        $check  = "SELECT * FROM feedback WHERE student_id='$student_id' AND faculty_id='$faculty_id'";
-        $result = mysqli_query($conn, $check);
-        if (mysqli_num_rows($result) > 0) {
+        $check = mysqli_query($conn,
+            "SELECT id FROM feedback WHERE student_id=$student_id AND faculty_id=$faculty_id");
+        if (mysqli_num_rows($check) > 0) {
             $message = "You have already submitted feedback for this faculty!";
         } else {
-            $query = "INSERT INTO feedback (student_id, faculty_id, rating, comments) VALUES ('$student_id', '$faculty_id', '$rating', '$comments')";
-            mysqli_query($conn, $query);
-            header("Location: dashboard.php"); exit();
+            mysqli_query($conn,
+                "INSERT INTO feedback (student_id, faculty_id, rating, comments)
+                 VALUES ($student_id, $faculty_id, $rating, '$comments')");
+            header("Location: dashboard.php");
+            exit();
         }
     }
 }
@@ -42,7 +43,6 @@ if (isset($_POST['submit'])) {
 <body>
 <div class="page-wrapper">
   <?php include("../includes/header.php"); ?>
-  <div class="main-content">
 
     <div class="back-bar">
       <a href="dashboard.php" class="back-link">← Back to Dashboard</a>
@@ -60,7 +60,7 @@ if (isset($_POST['submit'])) {
     </div>
 
     <div style="max-width:640px;">
-      <?php if ($message != ""): ?>
+      <?php if ($message): ?>
         <div class="alert alert-danger">⚠️ <?= htmlspecialchars($message) ?></div>
       <?php endif; ?>
 
@@ -72,10 +72,12 @@ if (isset($_POST['submit'])) {
             <select name="faculty_id" id="faculty_id" class="form-control" required>
               <option value="">— Choose a faculty member —</option>
               <?php
-              $result = mysqli_query($conn, "SELECT * FROM faculty");
-              while ($row = mysqli_fetch_assoc($result)) {
-                  $sel = ($preselected_faculty == $row['id'] || (isset($_POST['faculty_id']) && $_POST['faculty_id'] == $row['id'])) ? 'selected' : '';
-                  echo "<option value='".$row['id']."' $sel>".htmlspecialchars($row['name'])." — ".htmlspecialchars($row['subject'])."</option>";
+              $faculty_result = mysqli_query($conn, "SELECT * FROM faculty");
+              while ($row = mysqli_fetch_assoc($faculty_result)) {
+                  $sel = ($preselected == $row['id'] || (isset($_POST['faculty_id']) && $_POST['faculty_id'] == $row['id'])) ? 'selected' : '';
+                  echo "<option value='" . (int)$row['id'] . "' $sel>"
+                      . htmlspecialchars($row['name']) . " — " . htmlspecialchars($row['subject'])
+                      . "</option>";
               }
               ?>
             </select>
@@ -84,8 +86,9 @@ if (isset($_POST['submit'])) {
           <div class="form-group">
             <label class="form-label">Rating</label>
             <div class="stars">
-              <?php $cr = isset($_POST['rating']) ? (int)$_POST['rating'] : 0; for ($i=5; $i>=1; $i--): ?>
-              <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" <?= $cr==$i?'checked':'' ?>>
+              <?php $cr = isset($_POST['rating']) ? (int)$_POST['rating'] : 0;
+              for ($i = 5; $i >= 1; $i--): ?>
+              <input type="radio" name="rating" id="star<?= $i ?>" value="<?= $i ?>" <?= $cr == $i ? 'checked' : '' ?>>
               <label for="star<?= $i ?>">★</label>
               <?php endfor; ?>
             </div>
@@ -109,7 +112,6 @@ if (isset($_POST['submit'])) {
       </div>
     </div>
 
-  </div>
   <?php include("../includes/footer.php"); ?>
 </div>
 </body>

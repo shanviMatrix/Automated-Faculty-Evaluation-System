@@ -1,18 +1,27 @@
 <?php
 include("../config/db.php");
 
+$success = false;
+$error   = '';
+
 if (isset($_POST['register'])) {
-    $name     = mysqli_real_escape_string($conn, $_POST['name']);
-    $email    = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
-    $check  = "SELECT * FROM students WHERE email='$email'";
-    $result = mysqli_query($conn, $check);
-    if (mysqli_num_rows($result) > 0) {
-        $error = "This email is already registered. Please login instead.";
+    $name     = mysqli_real_escape_string($conn, trim($_POST['name']));
+    $email    = mysqli_real_escape_string($conn, trim($_POST['email']));
+    $password = trim($_POST['password']);
+
+    if (!$name || !$email || !$password) {
+        $error = "Please fill in all fields.";
+    } elseif (strlen($password) < 6) {
+        $error = "Password must be at least 6 characters.";
     } else {
-        $query = "INSERT INTO students (name, email, password) VALUES ('$name', '$email', '$password')";
-        mysqli_query($conn, $query);
-        $success = true;
+        $check = mysqli_query($conn, "SELECT id FROM students WHERE email='$email'");
+        if (mysqli_num_rows($check) > 0) {
+            $error = "This email is already registered. Please login instead.";
+        } else {
+            mysqli_query($conn,
+                "INSERT INTO students (name, email, password) VALUES ('$name', '$email', '$password')");
+            $success = true;
+        }
     }
 }
 ?>
@@ -47,15 +56,12 @@ if (isset($_POST['register'])) {
       <h1>Student Registration ✨</h1>
       <p class="subtitle">Create your student account</p>
 
-      <?php if (isset($success) && $success): ?>
+      <?php if ($success): ?>
         <div class="alert alert-success">✓ Registration successful! You can now login.</div>
-        <a href="login.php" class="btn btn-secondary btn-block">Go to Login →</a>
-        <p class="text-center mt-2" style="font-size:13px;">
-          <a href="login.php" style="color:var(--text-secondary); text-decoration:none;">← Back to Login</a>
-        </p>
+        <a href="../login.php" class="btn btn-secondary btn-block">Go to Login →</a>
       <?php else: ?>
 
-        <?php if (isset($error)): ?>
+        <?php if ($error): ?>
           <div class="alert alert-danger">⚠️ <?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
@@ -77,7 +83,7 @@ if (isset($_POST['register'])) {
           <div class="form-group">
             <label class="form-label" for="password">Password</label>
             <input type="password" id="password" name="password" class="form-control"
-              placeholder="Create a strong password" required>
+              placeholder="At least 6 characters" required>
           </div>
           <button type="submit" name="register" class="btn btn-secondary btn-block">Create Account</button>
         </form>
@@ -85,7 +91,7 @@ if (isset($_POST['register'])) {
         <hr class="divider">
         <p class="text-center" style="font-size:13px; color:var(--text-hint);">
           Already have an account?
-          <a href="login.php" style="color:var(--green-deep); font-weight:700; text-decoration:none;">Login here →</a>
+          <a href="../login.php" style="color:var(--green-deep); font-weight:700; text-decoration:none;">Login here →</a>
         </p>
       <?php endif; ?>
     </div>
