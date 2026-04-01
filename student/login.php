@@ -1,15 +1,15 @@
 <?php
 session_start();
-include("config/db.php");
+include("../config/db.php");
 
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
-    $query = "SELECT * FROM admin WHERE username='$username' AND password='$password'";
+    $query = "SELECT * FROM students WHERE email='$username' AND password='$password'";    
     $result = mysqli_query($conn, $query);
     if (mysqli_num_rows($result) == 1) {
         $_SESSION['admin'] = $username;
-        header("Location: admin/dashboard.php");
+        header("Location: dashboard.php");
         exit();
     } else {
         $error = "Invalid username or password. Please try again.";
@@ -25,7 +25,7 @@ if (isset($_POST['login'])) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 <div class="login-page">

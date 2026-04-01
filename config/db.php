@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $password = "";
-$database = "faculty_evaluation";
+$database = "faculty_eval";
 $port = 3307;
 
 // Create connection

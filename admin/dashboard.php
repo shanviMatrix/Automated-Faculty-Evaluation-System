@@ -61,27 +61,33 @@ $avg_rating     = mysqli_fetch_row(mysqli_query($conn, "SELECT ROUND(AVG(rating)
     </div>
 
     <!-- Quick Actions -->
-    <div class="card mb-3">
-      <div class="card-title">⚡ Quick Actions</div>
-      <div class="action-grid">
-        <a href="add_faculty.php" class="action-card">
-          <div class="action-card-icon">➕</div>
-          <div class="action-card-label">Add Faculty</div>
-        </a>
-        <a href="manage_faculty.php" class="action-card">
-          <div class="action-card-icon">👥</div>
-          <div class="action-card-label">Manage Faculty</div>
-        </a>
-        <a href="view_feedback.php" class="action-card">
-          <div class="action-card-icon">📋</div>
-          <div class="action-card-label">View Feedback</div>
-        </a>
-        <a href="../logout.php" class="action-card pink">
-          <div class="action-card-icon">🚪</div>
-          <div class="action-card-label">Logout</div>
-        </a>
-      </div>
-    </div>
+   <div class="card">
+  <div class="card-title">⚡ Quick Actions</div>
+
+  <div class="actions-grid">
+
+    <a href="add_faculty.php" class="action-card">
+      <div class="action-card-icon">➕</div>
+      <div class="action-card-label">Add Faculty</div>
+    </a>
+
+    <a href="manage_faculty.php" class="action-card">
+      <div class="action-card-icon">👥</div>
+      <div class="action-card-label">Manage Faculty</div>
+    </a>
+
+    <a href="view_feedback.php" class="action-card">
+      <div class="action-card-icon">📋</div>
+      <div class="action-card-label">View Feedback</div>
+    </a>
+
+    <a href="logout.php" class="action-card pink">
+      <div class="action-card-icon">🚪</div>
+      <div class="action-card-label">Logout</div>
+    </a>
+
+  </div>
+</div>
 
     <!-- Recent Feedback -->
     <div class="card">
