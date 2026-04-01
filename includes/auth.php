@@ -1,22 +1,20 @@
 <?php
-/**
- * includes/auth.php
- * Central authentication helper — include this on every protected page
- * instead of scattering session checks everywhere.
- */
-
 function require_role($required_role) {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {  // ← add this check
+        session_start();
+    }
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== $required_role) {
-        header("Location: /login.php");
+        header("Location: /faculty_eval/login.php");
         exit();
     }
 }
 
 function require_any_role(array $roles) {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {  // ← add this check
+        session_start();
+    }
     if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], $roles)) {
-        header("Location: /login.php");
+        header("Location: /faculty_eval/login.php");
         exit();
     }
 }

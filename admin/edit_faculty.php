@@ -4,7 +4,7 @@ require_role('admin');
 
 include("../config/db.php");
 
-$id     = (int)$_GET['id']; // FIXED: int cast, not string escape
+$id     = (int)$_GET['id']; 
 $result = mysqli_query($conn, "SELECT * FROM faculty WHERE id=$id");
 $row    = mysqli_fetch_assoc($result);
 

@@ -7,11 +7,10 @@ include("../config/db.php");
 $success = false;
 
 if (isset($_POST['submit'])) {
-    // FIXED: was missing mysqli_real_escape_string on insert
     $name    = mysqli_real_escape_string($conn, trim($_POST['name']));
     $subject = mysqli_real_escape_string($conn, trim($_POST['subject']));
     $email   = mysqli_real_escape_string($conn, trim($_POST['email']));
-    $password = trim($_POST['password']); // store plain for now; hash when ready
+    $password = trim($_POST['password']); 
 
     if ($name && $subject) {
         mysqli_query($conn, "INSERT INTO faculty (name, subject, email, password) VALUES ('$name', '$subject', '$email', '$password')");

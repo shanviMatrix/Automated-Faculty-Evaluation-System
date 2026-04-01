@@ -1,5 +1,4 @@
 <?php
-session_start();
 include("config/db.php");
 
 // Redirect if already logged in

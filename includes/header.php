@@ -1,8 +1,4 @@
 <?php
-/**
- * includes/header.php
- * Works with the unified session: $_SESSION['user_role'] and $_SESSION['user_name']
- */
 $current_page = basename($_SERVER['PHP_SELF']);
 $role         = $_SESSION['user_role'] ?? '';
 $user_name    = $_SESSION['user_name'] ?? '';
@@ -14,13 +10,18 @@ if ($user_name) {
     if (isset($parts[1])) $initials .= strtoupper(substr($parts[1], 0, 1));
 }
 
-// Calculate base path depth so links always resolve correctly
-$depth = substr_count(str_replace('\\', '/', $_SERVER['PHP_SELF']), '/') - 1;
-$base  = str_repeat('../', $depth);
+$base = '/faculty_eval/';
+
+$dashboard_url = match($role) {
+    'admin'   => $base . 'admin/dashboard.php',
+    'student' => $base . 'student/dashboard.php',
+    'faculty' => $base . 'faculty/dashboard.php',
+    default   => $base . 'login.php',
+};
 ?>
 <nav class="navbar">
   <div class="navbar-inner">
-    <a href="<?= $base ?>login.php" class="navbar-brand">
+    <a href="<?= $dashboard_url ?>" class="navbar-brand">
       <div class="navbar-logo">FE</div>
       <span class="navbar-title">Faculty <span>Eval</span></span>
     </a>
