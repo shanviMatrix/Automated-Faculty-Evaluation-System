@@ -1,13 +1,14 @@
 <?php
+session_start();
+
 include("config/db.php");
 
-// Redirect if already logged in
 if (isset($_SESSION['user_role'])) {
-    header("Location: " . get_dashboard_url($_SESSION['user_role']));
+    header("Location: /faculty_eval/" . get_dashboard_path($_SESSION['user_role']));
     exit();
 }
 
-function get_dashboard_url($role) {
+function get_dashboard_path($role) {
     switch ($role) {
         case 'admin':   return 'admin/dashboard.php';
         case 'faculty': return 'faculty/dashboard.php';
@@ -33,7 +34,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_role']  = 'admin';
                 $_SESSION['user_id']    = $user['id'];
                 $_SESSION['user_name']  = $user['username'];
-                header("Location: admin/dashboard.php");
+                header("Location: /faculty_eval/admin/dashboard.php");
                 exit();
             } else {
                 $error = "Invalid admin credentials.";
@@ -46,7 +47,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_role']  = 'faculty';
                 $_SESSION['user_id']    = $user['id'];
                 $_SESSION['user_name']  = $user['name'];
-                header("Location: faculty/dashboard.php");
+                header("Location: /faculty_eval/faculty/dashboard.php");
                 exit();
             } else {
                 $error = "Invalid faculty credentials.";
@@ -59,7 +60,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['user_role']  = 'student';
                 $_SESSION['user_id']    = $user['id'];
                 $_SESSION['user_name']  = $user['name'];
-                header("Location: student/dashboard.php");
+                header("Location: /faculty_eval/student/dashboard.php");
                 exit();
             } else {
                 $error = "Invalid student credentials.";
@@ -109,7 +110,7 @@ if (isset($_POST['login'])) {
       color: var(--text-primary);
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .role-tab.active.admin  { color: var(--green-deep); }
+    .role-tab.active.admin   { color: var(--green-deep); }
     .role-tab.active.faculty { color: #7c3aed; }
     .role-tab.active.student { color: var(--pink-deep); }
   </style>
@@ -124,9 +125,9 @@ if (isset($_POST['login'])) {
       <p>A smart platform to collect and analyse student feedback on faculty performance.</p>
       <ul class="features">
         <li>Single unified login</li>
-        <li>Admin, Faculty & Student portals</li>
+        <li>Admin, Faculty &amp; Student portals</li>
         <li>View detailed feedback reports</li>
-        <li>Real-time ratings & analytics</li>
+        <li>Real-time ratings &amp; analytics</li>
       </ul>
     </div>
 
@@ -138,7 +139,6 @@ if (isset($_POST['login'])) {
         <div class="alert alert-danger">⚠️ <?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
-      <!-- Role Selector Tabs -->
       <div class="role-tabs" id="roleTabs">
         <button type="button" class="role-tab admin active" onclick="selectRole('admin')">🛡️ Admin</button>
         <button type="button" class="role-tab faculty"     onclick="selectRole('faculty')">🏫 Faculty</button>
@@ -194,7 +194,6 @@ if (isset($_POST['login'])) {
     document.getElementById('loginBtn').textContent       = cfg.btnText;
   }
 
-  // Init on load (restore selected role if form was submitted)
   const savedRole = document.getElementById('roleInput').value || 'admin';
   selectRole(savedRole);
 </script>

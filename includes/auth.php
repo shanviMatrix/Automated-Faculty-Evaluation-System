@@ -1,6 +1,10 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 function require_role($required_role) {
-    if (session_status() === PHP_SESSION_NONE) {  // ← add this check
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== $required_role) {
@@ -10,7 +14,7 @@ function require_role($required_role) {
 }
 
 function require_any_role(array $roles) {
-    if (session_status() === PHP_SESSION_NONE) {  // ← add this check
+    if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
     if (!isset($_SESSION['user_role']) || !in_array($_SESSION['user_role'], $roles)) {

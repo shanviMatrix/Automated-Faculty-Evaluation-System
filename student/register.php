@@ -1,4 +1,5 @@
 <?php
+session_start();
 include("../config/db.php");
 
 $success = false;
@@ -46,7 +47,7 @@ if (isset($_POST['register'])) {
       <p>Register once and start giving feedback to your faculty members instantly.</p>
       <ul class="features">
         <li>Quick one-time registration</li>
-        <li>Secure & private</li>
+        <li>Secure &amp; private</li>
         <li>Access your dashboard</li>
         <li>Track all submissions</li>
       </ul>
@@ -58,7 +59,7 @@ if (isset($_POST['register'])) {
 
       <?php if ($success): ?>
         <div class="alert alert-success">✓ Registration successful! You can now login.</div>
-        <a href="../login.php" class="btn btn-secondary btn-block">Go to Login →</a>
+        <a href="/faculty_eval/login.php" class="btn btn-secondary btn-block">Go to Login →</a>
       <?php else: ?>
 
         <?php if ($error): ?>
@@ -91,7 +92,7 @@ if (isset($_POST['register'])) {
         <hr class="divider">
         <p class="text-center" style="font-size:13px; color:var(--text-hint);">
           Already have an account?
-          <a href="../login.php" style="color:var(--green-deep); font-weight:700; text-decoration:none;">Login here →</a>
+          <a href="/faculty_eval/login.php" style="color:var(--green-deep); font-weight:700; text-decoration:none;">Login here →</a>
         </p>
       <?php endif; ?>
     </div>
